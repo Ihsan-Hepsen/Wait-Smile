@@ -1,7 +1,21 @@
+import { useState } from 'react'
 import { Button, Paper, TextField, Typography } from '@mui/material'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 
+import { sendEmailSignUp } from '../service/WaitListDataService'
+
 export default function WaitListEmbed() {
+    const [email, setEmail] = useState("")
+    const [didSubmit, setDidSubmit] = useState(false)
+
+    const handleFormInputChange = (event) => {
+        setEmail(event.target.value)
+    }
+    const handleFormSubmit = (event) => {
+        event.preventDefault()
+        console.log("clicked submit")
+        sendEmailSignUp(email, 'test')
+    }
 
     const styles = {
         paper: {
@@ -46,11 +60,14 @@ export default function WaitListEmbed() {
                         No spam, just updates. Limited spots.
                     </Typography>
                 </section>
-                <form style={{
-                    display: 'flex',
-                    flexDirection: 'row',
+                <form
+                    onChange={handleFormInputChange}
+                    onSubmit={handleFormSubmit}
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
 
-                }}>
+                    }}>
                     <TextField
                         id="email-submission"
                         label="Enter your email"
@@ -60,6 +77,7 @@ export default function WaitListEmbed() {
                         type='email'
                         required
                         sx={styles.textField}
+                        value={email}
                     />
                     <Button
                         type='submit'
