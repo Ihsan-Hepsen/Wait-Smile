@@ -1,20 +1,42 @@
 import { useState } from 'react'
-import { Button, Paper, TextField, Typography } from '@mui/material'
+import { Alert, Button, Paper, TextField, Typography } from '@mui/material'
+import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+import CircularProgress from '@mui/material/CircularProgress'
 
 import { sendEmailSignUp } from '../service/WaitListDataService'
 
 export default function WaitListEmbed() {
     const [email, setEmail] = useState("")
+    const [message, setMessage] = useState("")
+    const [isSubmitOk, setIsSubmitOk] = useState(true)
+    const [isLoading, setIsLoading] = useState(false)
     const [didSubmit, setDidSubmit] = useState(false)
 
     const handleFormInputChange = (event) => {
         setEmail(event.target.value)
     }
-    const handleFormSubmit = (event) => {
+
+    const handleFormSubmit = async (event) => {
         event.preventDefault()
-        console.log("clicked submit")
-        sendEmailSignUp(email, 'test')
+        setIsLoading(true)
+        const response = await sendEmailSignUp(email, 'test2')
+
+        setDidSubmit(true)
+        setIsLoading(false)
+        switch (response.status) {
+            case "new":
+                setMessage("You're in!")
+                break
+            case "exists":
+                setMessage("You're already in!")
+                break
+            case "error":
+                setMessage("Something went wrong. Try again later")
+                setIsSubmitOk(false)
+                break
+        }
     }
 
     const styles = {
@@ -53,13 +75,11 @@ export default function WaitListEmbed() {
             fontFamily: 'Inter',
         },
         button: {
-            fontFamily: 'inherit',
             textTransform: 'none',
             margin: '0 .6rem',
             padding: '0 1.8rem',
             fontFamily: 'Inter',
         },
-
     }
 
     return (
@@ -80,33 +100,49 @@ export default function WaitListEmbed() {
                             No spam, just updates. Limited spots.
                         </Typography>
                     </section>
-                    <form
-                        onChange={handleFormInputChange}
-                        onSubmit={handleFormSubmit}
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
+                    {
+                        didSubmit
+                            ?
+                            <section>
+                                <Alert
+                                    icon={isSubmitOk ? <CheckIcon /> : <CloseIcon />}
+                                    severity={isSubmitOk ? "success" : "error"}>
+                                    {message}
+                                </Alert>
+                            </section>
+                            :
+                            <form
+                                onChange={handleFormInputChange}
+                                onSubmit={handleFormSubmit}
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
 
-                        }}>
-                        <TextField
-                            id="email-submission"
-                            label="Enter your email"
-                            variant="outlined"
-                            placeholder='your best email'
-                            size='medium'
-                            type='email'
-                            required
-                            sx={styles.textField}
-                            value={email}
-                        />
-                        <Button
-                            type='submit'
-                            variant='contained'
-                            sx={styles.button}
-                        >
-                            <ArrowForwardIcon />
-                        </Button>
-                    </form>
+                                }}>
+                                <TextField
+                                    id="email-submission"
+                                    label="Enter your email"
+                                    variant="outlined"
+                                    placeholder='your best email'
+                                    size='medium'
+                                    type='email'
+                                    required
+                                    sx={styles.textField}
+                                    value={email}
+                                />
+                                <Button
+                                    type='submit'
+                                    variant='contained'
+                                    sx={styles.button}
+                                >
+                                    {isLoading ?
+                                        <CircularProgress size="18px" color='secondary' />
+                                        :
+                                        <ArrowForwardIcon />
+                                    }
+                                </Button>
+                            </form>
+                    }
                 </div>
             </Paper>
         </>

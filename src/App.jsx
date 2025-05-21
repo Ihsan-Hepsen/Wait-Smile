@@ -17,6 +17,9 @@ const theme = createTheme({
       bg2: '#f4f4f4',
       black: "#000",
     },
+    secondary: {
+      main: "#fff"
+    },
     text: {
       regular: "#f6f6f6",
       second: '#211A1E',
